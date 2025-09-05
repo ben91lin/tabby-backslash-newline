@@ -26,7 +26,7 @@ interface TerminalTab extends BaseTabComponent {
 export class ShiftEnterConfigProvider extends ConfigProvider {
     defaults = {
         hotkeys: {
-            'shift-enter-newline': ['Shift+Enter'],
+            'shift-enter-newline': ['Shift-Enter'],
         },
     }
 }
