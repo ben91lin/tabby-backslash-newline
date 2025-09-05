@@ -1,12 +1,14 @@
-# Tabby Shift+Enter Plugin
+# Tabby Backslash Newline Plugin
 
-A Tabby terminal plugin that adds Shift+Enter hotkey functionality to send a backslash newline (`\\\n`) in terminal sessions.
+A Tabby terminal plugin that enables line continuation in terminal sessions by adding Shift+Enter hotkey to send backslash newline (`\\\n`) sequences. Perfect for writing multi-line shell commands, scripts, and command-line operations.
 
 ## Features
 
-- **Shift+Enter Hotkey**: Press Shift+Enter to send `\\\n` to the active terminal
-- **Multi-tab Support**: Works across all terminal tabs and split views
+- **Line Continuation**: Press Shift+Enter to send ` \\\n` (space + backslash + newline) for continuing commands across multiple lines
+- **Shell Scripting Support**: Perfect for writing long commands, complex pipes, and multi-line shell scripts
+- **Multi-tab Support**: Works across all terminal tabs and split views  
 - **Smart Terminal Detection**: Automatically finds the active terminal instance, including in split views
+- **Cross-platform**: Uses system-appropriate line endings (Windows/Unix compatible)
 
 ## Installation
 
@@ -40,11 +42,36 @@ tsconfig.json         # TypeScript configuration
 
 ## How It Works
 
-The plugin integrates with Tabby's architecture through:
+The plugin sends a **space + backslash + newline** sequence (` \\\n`) when you press Shift+Enter, which is the standard shell syntax for line continuation. This allows you to:
 
-1. **HotkeyProvider**: Registers the `shift-enter-newline` hotkey
-2. **ShiftEnterHandler**: Handles the hotkey event and sends `\\\n` to the terminal
+- Break long commands across multiple lines for better readability
+- Write complex shell scripts interactively
+- Continue pipe chains and command sequences
+- Maintain proper shell escaping and formatting
+
+**Example usage:**
+```bash
+# Instead of this long one-liner:
+find /path -name "*.js" -type f -exec grep -l "function" {} \; | xargs wc -l
+
+# Write it across multiple lines with Shift+Enter:
+find /path -name "*.js" -type f \\
+  -exec grep -l "function" {} \; \\
+  | xargs wc -l
+```
+
+### Technical Implementation
+
+1. **HotkeyProvider**: Registers the `shift-enter-newline` hotkey with Tabby
+2. **ShiftEnterHandler**: Handles the hotkey event and sends the continuation sequence
 3. **Terminal Detection**: Finds the active terminal, including special handling for split views
+
+## Use Cases
+
+- **Long Commands**: Break complex commands with many options across multiple lines
+- **Shell Scripts**: Write and test multi-line scripts interactively
+- **Pipe Chains**: Create readable command pipelines
+- **Configuration**: Multi-line environment variable definitions and exports
 
 ## Requirements
 
