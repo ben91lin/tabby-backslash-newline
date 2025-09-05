@@ -5,9 +5,22 @@ import {
     HotkeyProvider, 
     HotkeysService,
     AppService,
-    ConfigProvider
+    ConfigProvider,
+    BaseTabComponent
 } from 'tabby-core'
 import * as os from 'os'
+
+// 型別定義
+interface SplitTabComponent extends BaseTabComponent {
+    getFocusedTab(): BaseTabComponent | null
+    focusedTab?: BaseTabComponent
+}
+
+interface TerminalTab extends BaseTabComponent {
+    session?: any
+    frontend?: { write?: (data: string) => void }
+    sendInput?: (data: string) => void
+}
 
 @Injectable()
 export class ShiftEnterConfigProvider extends ConfigProvider {
@@ -55,91 +68,85 @@ export class ShiftEnterHandler {
         const activeTab = this.app.activeTab
         console.log('當前標籤:', activeTab?.constructor.name)
         
-        // 處理 SplitTabComponent
-        if (activeTab?.constructor.name === 'SplitTabComponent') {
-            // 直接從 SplitTabComponent 找到實際的終端
-            const terminal = this.findTerminalInSplit(activeTab)
-            if (terminal) {
-                this.sendBackslashNewline(terminal)
-                return
-            }
+        // 統一處理：取得實際的終端標籤
+        const terminal = this.getActiveTerminal(activeTab)
+        if (terminal) {
+            this.sendBackslashNewline(terminal)
+        } else {
+            console.log('沒有找到可用的終端標籤')
         }
-        
-        // 一般情況處理
-        this.sendBackslashNewline(activeTab)
     }
 
-    private findTerminalInSplit(splitTab: any): any {
-        // 嘗試各種可能的屬性來找到終端
-        const props = ['getAllTabs', 'tabs', 'children', 'panes']
+    private getActiveTerminal(tab: BaseTabComponent | null): TerminalTab | null {
+        if (!tab) {
+            console.log('沒有活動標籤')
+            return null
+        }
         
-        for (const prop of props) {
-            if (typeof splitTab[prop] === 'function') {
-                try {
-                    const tabs = splitTab[prop]()
-                    if (Array.isArray(tabs)) {
-                        for (const tab of tabs) {
-                            if (tab.session || tab.frontend) {
-                                console.log('在分割視窗中找到終端:', tab.constructor.name)
-                                return tab
-                            }
-                        }
-                    }
-                } catch (e) {
-                    console.log(`方法 ${prop} 調用失敗:`, e)
+        // 檢查是否有 getFocusedTab 方法（容器組件）
+        const container = tab as any
+        if (typeof container.getFocusedTab === 'function') {
+            try {
+                const focusedTab = container.getFocusedTab()
+                if (focusedTab && this.isTerminalTab(focusedTab)) {
+                    console.log('使用 getFocusedTab() 找到終端:', focusedTab.constructor.name)
+                    return focusedTab as TerminalTab
                 }
-            } else if (splitTab[prop] && Array.isArray(splitTab[prop])) {
-                for (const tab of splitTab[prop]) {
-                    if (tab.session || tab.frontend) {
-                        console.log('在分割視窗中找到終端:', tab.constructor.name)
-                        return tab
-                    }
-                }
+            } catch (error) {
+                console.log('getFocusedTab() 調用失敗:', error)
             }
         }
         
-        // 嘗試找到焦點標籤
-        if (splitTab.focusedTab && (splitTab.focusedTab.session || splitTab.focusedTab.frontend)) {
-            console.log('使用焦點標籤:', splitTab.focusedTab.constructor.name)
-            return splitTab.focusedTab
+        // 檢查當前標籤本身是否為終端
+        if (this.isTerminalTab(tab)) {
+            console.log('直接使用終端標籤:', tab.constructor.name)
+            return tab as TerminalTab
         }
         
-        console.log('SplitTabComponent 屬性:', Object.keys(splitTab))
+        console.log('標籤不是終端也沒有 getFocusedTab 方法:', tab.constructor.name)
         return null
     }
+    
+    private isTerminalTab(tab: BaseTabComponent | null): boolean {
+        if (!tab) return false
+        const terminalTab = tab as any
+        return !!(terminalTab.session || terminalTab.frontend || terminalTab.sendInput)
+    }
 
-    private sendBackslashNewline(tab: any) {
+    private sendBackslashNewline(tab: TerminalTab | BaseTabComponent | null) {
         if (!tab) {
             console.log('沒有標籤可用')
             return
         }
+        
+        const terminalTab = tab as TerminalTab
 
         const textToSend = ' \\' + os.EOL  // 空格 + 反斜線 + 系統換行符
         
         try {
             // 嘗試使用 session
-            if (tab.session) {
-                tab.session.write(Buffer.from(textToSend, 'utf8'))
+            if (terminalTab.session) {
+                terminalTab.session.write(Buffer.from(textToSend, 'utf8'))
                 console.log('透過 session 發送:', textToSend.replace(/\r?\n/g, '\\n'))
                 return
             }
 
             // 嘗試使用 frontend
-            if (tab.frontend && tab.frontend.write) {
-                tab.frontend.write(textToSend)
+            if (terminalTab.frontend && terminalTab.frontend.write) {
+                terminalTab.frontend.write(textToSend)
                 console.log('透過 frontend 發送:', textToSend.replace(/\r?\n/g, '\\n'))
                 return
             }
 
             // 嘗試使用 sendInput
-            if (typeof tab.sendInput === 'function') {
-                tab.sendInput(textToSend)
+            if (typeof terminalTab.sendInput === 'function') {
+                terminalTab.sendInput(textToSend)
                 console.log('透過 sendInput 發送:', textToSend.replace(/\r?\n/g, '\\n'))
                 return
             }
 
             console.log('找不到可用的發送方法')
-            console.log('標籤屬性:', Object.keys(tab))
+            console.log('標籤屬性:', Object.keys(terminalTab).filter(key => !key.startsWith('_')))
             
         } catch (error) {
             console.log('發送時出錯:', error)
