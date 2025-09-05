@@ -1,7 +1,7 @@
 {
-  "name": "tabby-shift-enter",
+  "name": "tabby-backslash-newline",
   "version": "1.0.0",
-  "description": "Tabby plugin that sends backslash newline (\\\\n) with Shift-Enter",
+  "description": "Tabby plugin that sends backslash newline (\\\\n) for line continuation",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
@@ -25,8 +25,8 @@
     "tabby-terminal": "^1.0.197-nightly.1"
   },
   "tabbyPlugin": {
-    "name": "tabby-shift-enter",
-    "displayName": "Shift-Enter Newline",
-    "description": "Adds Shift-Enter hotkey to send backslash newline in terminal sessions"
+    "name": "tabby-backslash-newline",
+    "displayName": "Backslash Newline",
+    "description": "Adds Shift-Enter hotkey to send backslash newline for line continuation"
   }
 }
