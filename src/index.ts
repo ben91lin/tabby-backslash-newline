@@ -35,10 +35,12 @@ export class ShiftEnterHandler {
         private hotkeys: HotkeysService,
         private app: AppService
     ) {
-        this.init()
+        // 延遲初始化以確保 ConfigProvider 已經被處理
+        setTimeout(() => this.init(), 100)
     }
 
     private init() {
+        console.log('初始化 Shift+Enter 熱鍵處理器')
         this.hotkeys.matchedHotkey.subscribe(hotkey => {
             if (hotkey === 'shift-enter-newline') {
                 this.handleShiftEnter()
