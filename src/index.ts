@@ -7,6 +7,7 @@ import {
     AppService,
     ConfigProvider
 } from 'tabby-core'
+import * as os from 'os'
 
 @Injectable()
 export class ShiftEnterConfigProvider extends ConfigProvider {
@@ -113,27 +114,27 @@ export class ShiftEnterHandler {
             return
         }
 
-        const textToSend = ' \\\n'  // 空格 + 反斜線 + 換行
+        const textToSend = ' \\' + os.EOL  // 空格 + 反斜線 + 系統換行符
         
         try {
             // 嘗試使用 session
             if (tab.session) {
                 tab.session.write(Buffer.from(textToSend, 'utf8'))
-                console.log('透過 session 發送:', textToSend.replace('\n', '\\n'))
+                console.log('透過 session 發送:', textToSend.replace(/\r?\n/g, '\\n'))
                 return
             }
 
             // 嘗試使用 frontend
             if (tab.frontend && tab.frontend.write) {
                 tab.frontend.write(textToSend)
-                console.log('透過 frontend 發送:', textToSend.replace('\n', '\\n'))
+                console.log('透過 frontend 發送:', textToSend.replace(/\r?\n/g, '\\n'))
                 return
             }
 
             // 嘗試使用 sendInput
             if (typeof tab.sendInput === 'function') {
                 tab.sendInput(textToSend)
-                console.log('透過 sendInput 發送:', textToSend.replace('\n', '\\n'))
+                console.log('透過 sendInput 發送:', textToSend.replace(/\r?\n/g, '\\n'))
                 return
             }
 
