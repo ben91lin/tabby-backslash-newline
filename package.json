@@ -1,15 +1,21 @@
 {
   "name": "tabby-shift-enter",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "Tabby plugin that sends backslash newline (\\\\n) with Shift+Enter",
+  "main": "dist/index.js",
   "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": ["tabby", "tabby-plugin", "terminal", "hotkey"],
+  "author": "ABen",
   "license": "ISC",
   "type": "commonjs",
+  "peerDependencies": {
+    "@angular/core": "^15.0.0",
+    "@angular/common": "^15.0.0"
+  },
   "devDependencies": {
     "@types/node": "^24.3.1",
     "typescript": "^4.9.5"
@@ -17,5 +23,10 @@
   "dependencies": {
     "tabby-core": "^1.0.197-nightly.1",
     "tabby-terminal": "^1.0.197-nightly.1"
+  },
+  "tabbyPlugin": {
+    "name": "tabby-shift-enter",
+    "displayName": "Shift+Enter Newline",
+    "description": "Adds Shift+Enter hotkey to send backslash newline in terminal sessions"
   }
 }
