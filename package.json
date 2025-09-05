@@ -1,0 +1,21 @@
+{
+  "name": "tabby-shift-enter",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "devDependencies": {
+    "@types/node": "^24.3.1",
+    "typescript": "^4.9.5"
+  },
+  "dependencies": {
+    "tabby-core": "^1.0.197-nightly.1",
+    "tabby-terminal": "^1.0.197-nightly.1"
+  }
+}
