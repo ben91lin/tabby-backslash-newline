@@ -24,6 +24,14 @@
     "tabby-core": "^1.0.197-nightly.1",
     "tabby-terminal": "^1.0.197-nightly.1"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ben91lin/tabby-backslash-newline.git"
+  },
+  "bugs": {
+    "url": "https://github.com/ben91lin/tabby-backslash-newline/issues"
+  },
+  "homepage": "https://github.com/ben91lin/tabby-backslash-newline#readme",
   "tabbyPlugin": {
     "name": "tabby-backslash-newline",
     "displayName": "Backslash Newline",

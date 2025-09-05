@@ -12,6 +12,21 @@ A Tabby terminal plugin that enables line continuation in terminal sessions by a
 
 ## Installation
 
+### Via Tabby Plugin Manager (Recommended)
+
+1. Open Tabby
+2. Go to **Settings** → **Plugins**
+3. Search for "**Backslash Newline**"
+4. Click **Install**
+
+### Manual Installation
+
+```bash
+npm install -g tabby-backslash-newline
+```
+
+### Development Installation
+
 1. Clone this repository
 2. Install dependencies: `npm install`
 3. Build the plugin: `npx tsc`
