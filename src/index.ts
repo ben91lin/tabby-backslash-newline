@@ -8,7 +8,6 @@ import {
     ConfigProvider,
     BaseTabComponent
 } from 'tabby-core'
-import * as os from 'os'
 
 // Type definitions
 interface SplitTabComponent extends BaseTabComponent {
@@ -23,7 +22,7 @@ interface TerminalTab extends BaseTabComponent {
 }
 
 @Injectable()
-export class ShiftEnterConfigProvider extends ConfigProvider {
+export class BackslashNewlineConfigProvider extends ConfigProvider {
     defaults = {
         hotkeys: {
             'shift-enter-newline': ['Shift-Enter'],
@@ -32,7 +31,7 @@ export class ShiftEnterConfigProvider extends ConfigProvider {
 }
 
 @Injectable()
-export class ShiftEnterHotkeyProvider extends HotkeyProvider {
+export class BackslashNewlineHotkeyProvider extends HotkeyProvider {
     async provide(): Promise<HotkeyDescription[]> {
         return [
             {
@@ -44,7 +43,7 @@ export class ShiftEnterHotkeyProvider extends HotkeyProvider {
 }
 
 @Injectable()
-export class ShiftEnterHandler {
+export class BackslashNewlineHandler {
     constructor(
         private hotkeys: HotkeysService,
         private app: AppService
@@ -56,12 +55,12 @@ export class ShiftEnterHandler {
     private init() {
         this.hotkeys.matchedHotkey.subscribe(hotkey => {
             if (hotkey === 'shift-enter-newline') {
-                this.handleShiftEnter()
+                this.handleBackslashNewline()
             }
         })
     }
 
-    private handleShiftEnter() {
+    private handleBackslashNewline() {
         const activeTab = this.app.activeTab
         
         // 統一處理：取得實際的終端標籤
@@ -111,7 +110,7 @@ export class ShiftEnterHandler {
         
         const terminalTab = tab as TerminalTab
 
-        const textToSend = ' \\' + os.EOL  // 空格 + 反斜線 + 系統換行符
+        const textToSend = ' \\\n'  // 空格 + 反斜線 + 換行符
         
         try {
             // Try using session
@@ -145,18 +144,18 @@ export class ShiftEnterHandler {
     providers: [
         {
             provide: ConfigProvider,
-            useClass: ShiftEnterConfigProvider,
+            useClass: BackslashNewlineConfigProvider,
             multi: true,
         },
         {
             provide: HotkeyProvider,
-            useClass: ShiftEnterHotkeyProvider,
+            useClass: BackslashNewlineHotkeyProvider,
             multi: true,
         },
-        ShiftEnterHandler,
+        BackslashNewlineHandler,
     ],
 })
-export default class ShiftEnterModule {
-    constructor(private handler: ShiftEnterHandler) {
+export default class BackslashNewlineModule {
+    constructor(private handler: BackslashNewlineHandler) {
     }
 }
