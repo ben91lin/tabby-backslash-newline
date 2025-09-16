@@ -1,13 +1,20 @@
 // src/index.ts - Tabby Shift+Enter plugin
 import { NgModule, Injectable } from '@angular/core'
-import { 
-    HotkeyDescription, 
-    HotkeyProvider, 
+import { FormsModule } from '@angular/forms'
+import {
+    HotkeyDescription,
+    HotkeyProvider,
     HotkeysService,
     AppService,
     ConfigProvider,
+    ConfigService,
     BaseTabComponent
 } from 'tabby-core'
+import { SettingsTabProvider } from 'tabby-settings'
+
+// Import our components
+import { BackslashNewlineSettingsTabComponent } from './settings-tab.component'
+import { BackslashNewlineSettingsTabProvider } from './settings-tab-provider'
 
 // Type definitions
 interface SplitTabComponent extends BaseTabComponent {
@@ -27,6 +34,9 @@ export class BackslashNewlineConfigProvider extends ConfigProvider {
         hotkeys: {
             'shift-enter-newline': ['Shift-Enter'],
         },
+        backslashNewline: {
+            customText: ' \\\n',
+        },
     }
 }
 
@@ -36,7 +46,7 @@ export class BackslashNewlineHotkeyProvider extends HotkeyProvider {
         return [
             {
                 id: 'shift-enter-newline',
-                name: 'Send backslash newline with Shift+Enter',
+                name: 'Send configured custom text',
             },
         ]
     }
@@ -46,7 +56,8 @@ export class BackslashNewlineHotkeyProvider extends HotkeyProvider {
 export class BackslashNewlineHandler {
     constructor(
         private hotkeys: HotkeysService,
-        private app: AppService
+        private app: AppService,
+        private config: ConfigService
     ) {
         // Delayed initialization to ensure ConfigProvider is ready
         setTimeout(() => this.init(), 100)
@@ -110,7 +121,9 @@ export class BackslashNewlineHandler {
         
         const terminalTab = tab as TerminalTab
 
-        const textToSend = ' \\\n'  // 空格 + 反斜線 + 換行符
+        // 從配置中讀取自訂文字，如果沒有則使用預設值
+        const customText = this.config.store?.backslashNewline?.customText || ' \\\n'
+        const textToSend = this.processEscapeSequences(customText)
         
         try {
             // Try using session
@@ -138,9 +151,19 @@ export class BackslashNewlineHandler {
             console.error('Error sending backslash newline:', error)
         }
     }
+
+    private processEscapeSequences(text: string): string {
+        return text
+            .replace(/\\n/g, '\n')       // 換行符
+            .replace(/\\t/g, '\t')       // Tab 字元
+            .replace(/\\r/g, '\r')       // 回車符
+            .replace(/\\\\/g, '\\')      // 反斜線（必須放在最後）
+    }
 }
 
 @NgModule({
+    imports: [FormsModule],
+    declarations: [BackslashNewlineSettingsTabComponent],
     providers: [
         {
             provide: ConfigProvider,
@@ -150,6 +173,11 @@ export class BackslashNewlineHandler {
         {
             provide: HotkeyProvider,
             useClass: BackslashNewlineHotkeyProvider,
+            multi: true,
+        },
+        {
+            provide: SettingsTabProvider,
+            useClass: BackslashNewlineSettingsTabProvider,
             multi: true,
         },
         BackslashNewlineHandler,

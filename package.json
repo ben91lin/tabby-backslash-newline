@@ -1,6 +1,6 @@
 {
   "name": "tabby-backslash-newline",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Tabby plugin that sends backslash newline (\\\\n) for line continuation",
   "main": "dist/index.js",
   "scripts": {
@@ -22,7 +22,8 @@
   },
   "dependencies": {
     "tabby-core": "^1.0.197-nightly.1",
-    "tabby-terminal": "^1.0.197-nightly.1"
+    "tabby-terminal": "^1.0.197-nightly.1",
+    "tabby-settings": "^1.0.197-nightly.1"
   },
   "repository": {
     "type": "git",
